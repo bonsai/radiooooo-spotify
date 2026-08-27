@@ -29,7 +29,8 @@ function spotifyUrl(text) {
 // Send to the extension without throwing when no receiver (popup/side panel closed).
 function notify(msg) {
   try {
-    chrome.runtime.sendMessage(msg, () => void chrome.runtime.lastError);
+    const p = chrome.runtime.sendMessage(msg, () => void chrome.runtime.lastError);
+    if (p && typeof p.catch === "function") p.catch(() => {});
   } catch (e) {
     /* ignore */
   }

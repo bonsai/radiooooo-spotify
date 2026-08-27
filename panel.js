@@ -54,7 +54,8 @@ radios.forEach((r) => {
   r.addEventListener("change", () => {
     if (!r.checked) return;
     chrome.storage.local.set({ ro_mode: r.value });
-    chrome.runtime.sendMessage({ type: "setMode", mode: r.value }, () => void chrome.runtime.lastError);
+    const p = chrome.runtime.sendMessage({ type: "setMode", mode: r.value });
+    if (p && typeof p.catch === "function") p.catch(() => {});
     applyModeUI(r.value);
   });
 });

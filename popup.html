@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      :root { color-scheme: light; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; width: 280px;
+        font: 14px/1.4 system-ui, "Segoe UI", sans-serif;
+        color: #191414; background: #fff;
+      }
+      header { padding: 10px 12px; background: #1db954; color: #fff; }
+      header h1 { margin: 0; font-size: 14px; }
+      main { padding: 12px; }
+      .song {
+        border: 1px solid #e5e5e5; border-radius: 8px; padding: 10px 12px;
+        margin-bottom: 10px; min-height: 40px; word-break: break-word;
+      }
+      .song.empty { color: #888; font-style: italic; }
+      .link {
+        display: block; text-align: center; text-decoration: none;
+        background: #1db954; color: #fff; border-radius: 8px;
+        padding: 10px 12px; font-weight: 600; margin-bottom: 12px;
+      }
+      .link.disabled { background: #b3b3b3; pointer-events: none; }
+      .modes { border-top: 1px solid #eee; padding-top: 10px; }
+      .modes legend { font-size: 12px; color: #555; padding: 0 4px; }
+      .modes label { display: block; padding: 4px; cursor: pointer; }
+      .note { font-size: 11px; color: #888; margin-top: 8px; }
+    </style>
+  </head>
+  <body>
+    <header><h1>Radiooooo → Spotify</h1></header>
+    <main>
+      <div class="song empty" id="song">まだ曲が取得されていません</div>
+      <a class="link disabled" id="link" target="_blank" rel="noopener">Spotify で開く ↗</a>
+      <fieldset class="modes">
+        <legend>表示モード</legend>
+        <label><input type="radio" name="mode" value="popup" /> ポップアップ（既定）</label>
+        <label><input type="radio" name="mode" value="footer" /> フッターバー</label>
+        <label><input type="radio" name="mode" value="sidebar" /> サイドバー</label>
+      </fieldset>
+      <div class="note" id="note"></div>
+    </main>
+    <script src="panel.js"></script>
+  </body>
+</html>

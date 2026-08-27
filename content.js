@@ -6,18 +6,30 @@ const SEL_STRATEGIES = [
   { title: ".audio-player .info .title", artist: ".audio-player .info .artist" },
   { title: ".now .info .title", artist: ".now .info .artist" },
   { title: ".audio-player .title", artist: ".audio-player .artist" },
-  { title: '[class*="audio-player"] .title', artist: '[class*="audio-player"] .artist' },
 ];
 
-function extractNowPlaying() {
+// Full track info is exactly what Radiooooo's "copy" button copies:
+// the textContent of every `.data-info` element inside the player, joined by spaces
+// (e.g. "Amour... Amour Michel Legrand Peau D'Ane 1970").
+function extractTrackInfo() {
+  for (const root of [".audio-player", ".now"]) {
+    const base = document.querySelector(root);
+    if (!base) continue;
+    const nodes = base.querySelectorAll(".data-info");
+    if (nodes.length) {
+      const parts = Array.from(nodes)
+        .map((n) => n.textContent.replace(/\s+/g, " ").trim())
+        .filter(Boolean);
+      if (parts.length) return parts.join(" ");
+    }
+  }
+  // fallback: artist + title
   for (const s of SEL_STRATEGIES) {
     const titleEl = document.querySelector(s.title);
     const artistEl = document.querySelector(s.artist);
     const title = titleEl ? titleEl.textContent.replace(/\s+/g, " ").trim() : "";
     const artist = artistEl ? artistEl.textContent.replace(/\s+/g, " ").trim() : "";
-    if (title || artist) {
-      return { title, artist, query: [artist, title].filter(Boolean).join(" ") };
-    }
+    if (title || artist) return [artist, title].filter(Boolean).join(" ");
   }
   return null;
 }
@@ -60,6 +72,20 @@ const STYLE = `
 `;
 
 let footer = null;
+let lastSaved = "";
+
+function saveToPlaylist(text) {
+  if (text === lastSaved) return;
+  lastSaved = text;
+  chrome.storage.local.get("ro_playlist", (d) => {
+    const list = Array.isArray(d.ro_playlist) ? d.ro_playlist : [];
+    const last = list[list.length - 1];
+    if (last && last.text === text) return;
+    list.push({ text, ts: Date.now() });
+    if (list.length > 200) list.splice(0, list.length - 200);
+    chrome.storage.local.set({ ro_playlist: list });
+  });
+}
 
 function ensureFooter() {
   if (footer) return;
@@ -86,18 +112,19 @@ function removeFooter() {
 }
 
 function update() {
-  const np = extractNowPlaying();
+  const np = extractTrackInfo();
   chrome.storage.local.get("ro_mode", (d) => {
     const mode = d.ro_mode || "popup";
     if (mode === "footer") ensureFooter();
     else removeFooter();
 
     if (np) {
-      chrome.storage.local.set({ ro_song: np.query });
-      notify({ type: "song", text: np.query });
+      chrome.storage.local.set({ ro_song: np });
+      saveToPlaylist(np);
+      notify({ type: "song", text: np });
       if (footer) {
-        footer.href = spotifyUrl(np.query);
-        footer.querySelector(".ro-song").textContent = "🎵 " + np.query;
+        footer.href = spotifyUrl(np);
+        footer.querySelector(".ro-song").textContent = "🎵 " + np;
       }
     } else {
       if (footer) {

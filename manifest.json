@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Radiooooo → Spotify",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Radiooooo の現在の曲を Spotify 検索リンクで開く（ポップアップ／フッター／サイドバーを選択可）",
   "permissions": ["sidePanel", "storage", "activeTab"],
   "host_permissions": [
@@ -17,7 +17,7 @@
   "content_scripts": [
     {
       "matches": ["https://app.radiooooo.com/*"],
-           "js": ["content.js"],
+      "js": ["content.js"],
       "run_at": "document_idle"
     }
   ],
